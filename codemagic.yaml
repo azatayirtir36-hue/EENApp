@@ -14,17 +14,18 @@ workflows:
           flutter clean
           flutter pub get
           
-          # 1. Firebase içinSdkVersion ayarını 23 yapar
-          sed -i '' 's/minSdkVersion.*/minSdkVersion 23/g' android/app/build.gradle || sed -i 's/minSdkVersion.*/minSdkVersion 23/g' android/app/build.gradle
+          # 1. Mac sunucusunda hata veren sed komutunu düzgün formatta çalıştırıp minSdkVersion'ı 23 yapıyoruz
+          sed -i '' 's/minSdkVersion.*/minSdkVersion = 23/g' android/app/build.gradle || sed -i 's/minSdkVersion.*/minSdkVersion 23/g' android/app/build.gradle
           
-          # 2. Eksik olan Google Services eklenti sürümünü projenin ayarlarına zorla ekler
-          if [ -f "android/settings.gradle" ]; then
-            echo 'plugins { id "com.google.gms.google-services" version "4.4.1" apply false }' >> android/settings.gradle
-          elif [ -f "android/settings.gradle.kts" ]; then
-            echo 'plugins { id("com.google.gms.google-services") version "4.4.1" apply false }' >> android/settings.gradle.kts
+          # 2. Hata veren o 'plugins' bloğu çakışmasını çözüyoruz: 
+          # Var olan plugins bloğunun hemen içine Firebase eklentisini hatasızca enjekte ediyoruz
+          if [ -f "android/settings.gradle.kts" ]; then
+            sed -i '' 's/plugins {/plugins {\n    id("com.google.gms.google-services") version "4.4.1" apply false/g' android/settings.gradle.kts
+          elif [ -f "android/settings.gradle" ]; then
+            sed -i '' 's/plugins {/plugins {\n    id "com.google.gms.google-services" version "4.4.1" apply false/g' android/settings.gradle
           fi
           
-          # Derlemeyi başlatır
+          # Derlemeyi başlatıyoruz
           flutter build apk --release --no-shrink
     artifacts:
       - "**/build/app/outputs/flutter-apk/*.apk"

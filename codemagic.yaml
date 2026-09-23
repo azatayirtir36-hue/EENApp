@@ -2,15 +2,23 @@ workflows:
   android-workflow:
     name: Android APK Workflow
     instance_type: mac_mini_m2
+    max_build_duration: 30
     environment:
       flutter: 3.47.5
     scripts:
       - name: Setup and Build APK
         script: |
+          # Projenin ana dizinini otomatik bulur ve oraya girer
           PROJ_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \;)
           cd "$PROJ_DIR"
+          
+          # Önceki hatalı kalıntıları temizler
+          flutter clean
+          
+          # Paketleri güncel sürümlerle çeker
           flutter pub get
-          # Yerel Gradle/Firebase hatalarını bypass ederek doğrudan APK derlemesini zorlar
-          flutter build apk --release --no-shrink
+          
+          # Android Gradle/Firebase kilitlerini kırarak zorla APK üretir
+          flutter build apk --release --no-shrink --target-platform android-arm64
     artifacts:
       - "**/build/app/outputs/flutter-apk/*.apk"

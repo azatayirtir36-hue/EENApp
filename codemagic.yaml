@@ -1,11 +1,16 @@
-workflows:
+workfworkflows:
   android-workflow:
     name: Android APK Workflow
     instance_type: mac_mini_m2
     environment:
       flutter: 3.47.5
     scripts:
-      - flutter pub get
-      - flutter build apk --release
+      - name: Setup and Build APK
+        script: |
+          PROJ_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \;)
+          cd "$PROJ_DIR"
+          flutter pub get
+          # Yerel Gradle/Firebase hatalarını bypass ederek doğrudan APK derlemesini zorlar
+          flutter build apk --release --no-shrink
     artifacts:
-      - build/app/outputs/flutter-apk/*.apk
+      - "**/build/app/outputs/flutter-apk/*.apk"

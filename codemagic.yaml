@@ -14,8 +14,8 @@ workflows:
           flutter clean
           flutter pub get
           
-          # 1. Firebase'in istediği SDK sürümünü 23 yapıyoruz
-          sed -i '' 's/minSdkVersion.*/minSdkVersion = 23/g' android/app/build.gradle || sed -i 's/minSdkVersion.*/minSdkVersion 23/g' android/app/build.gradle
+          # 1. Hatalı Gradle komutunu temizleyip minSdkVersion ayarını esnek biçimde yapıyoruz
+          find android/ -name "build.gradle*" -exec sed -i '' 's/minSdkVersion.*/minSdkVersion = 23/g' {} + || true
           
           # 2. Plugins bloğu çakışmasını çözüyoruz
           if [ -f "android/settings.gradle.kts" ]; then
@@ -24,12 +24,17 @@ workflows:
             sed -i '' 's/plugins {/plugins {\n    id "com.google.gms.google-services" version "4.4.1" apply false/g' android/settings.gradle
           fi
           
-          # 3. SİHİRLİ DOKUNUŞ: Firebase'in paket adı eşleşme hatasını (Strict Mode) tamamen kapatıyoruz!
-          # Bu komut json dosyasındaki isim ne olursa olsun derleyicinin hata vermeden geçmesini sağlar.
-          echo "com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true" >> android/build.gradle
-          echo "android.gms.googleservices.strict_version_check = false" >> android/local.properties
+          # 3. KESİN ÇÖZÜM: google-services.json dosyasının içindeki gerçek paket adını otomatik okuyoruz
+          # Ve projenin tüm yerel dosyalarındaki paket adını bu gerçek isimle zorla eşitliyoruz!
+          JSON_PACKAGE=$(grep -o '"package_name": "[^"]*' android/app/google-services.json | head -n 1 | cut -d'"' -f4)
+          if [ ! -z "$JSON_PACKAGE" ]; then
+            echo "Firebase Paket Adı Tespit Edildi: $JSON_PACKAGE"
+            find android/ -type f \( -name "build.gradle" -o -name "build.gradle.kts" -o -name "AndroidManifest.xml" -o -name "MainActivity.kt" -o -name "MainActivity.java" \) -exec sed -i '' "s/com.example.eenapp/$JSON_PACKAGE/g" {} + || true
+            find android/ -type f \( -name "build.gradle" -o -name "build.gradle.kts" -o -name "AndroidManifest.xml" -o -name "MainActivity.kt" -o -name "MainActivity.java" \) -exec sed -i '' "s/eenapp/$JSON_PACKAGE/g" {} + || true
+          fi
           
           # Derlemeyi başlatıyoruz
           flutter build apk --release --no-shrink
     artifacts:
       - "**/build/app/outputs/flutter-apk/*.apk"
+

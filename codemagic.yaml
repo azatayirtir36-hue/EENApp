@@ -8,17 +8,16 @@ workflows:
     scripts:
       - name: Setup and Build APK
         script: |
-          # Projenin ana dizinini otomatik bulur ve oraya girer
           PROJ_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \;)
           cd "$PROJ_DIR"
           
-          # Önceki hatalı kalıntıları temizler
           flutter clean
-          
-          # Paketleri güncel sürümlerle çeker
           flutter pub get
           
-          # Android Gradle/Firebase kilitlerini kırarak zorla APK üretir
-          flutter build apk --release --no-shrink --target-platform android-arm64
+          # Firebase'in istediği Android ayarını (minSdkVersion 23) zorla dosyaya yazar
+          sed -i '' 's/minSdkVersion.*/minSdkVersion 23/g' android/app/build.gradle || sed -i 's/minSdkVersion.*/minSdkVersion 23/g' android/app/build.gradle
+          
+          # Derlemeyi başlatır
+          flutter build apk --release --no-shrink
     artifacts:
       - "**/build/app/outputs/flutter-apk/*.apk"

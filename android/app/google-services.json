@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "777113487548",
+    "project_id": "eenapp-4b41c",
+    "storage_bucket": "eenapp-4b41c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:777113487548:android:1122bb35dd341f122128b9",
+        "android_client_info": {
+          "package_name": "com.eenapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "777113487548-kb04m6v5abcf9lg4ga51oak3uftf1p1h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhaNl7qja91mZfSDWkJah5ZFn54OndIhU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "777113487548-kb04m6v5abcf9lg4ga51oak3uftf1p1h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
